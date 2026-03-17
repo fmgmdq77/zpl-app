@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ZPL Viewer</title>
+  <style>
+    body { font-family: Arial; text-align: center; }
+    #container {
+      height: 500px;
+      overflow-y: scroll;
+      border: 1px solid #ccc;
+      padding: 10px;
+    }
+    img {
+      width: 300px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>📦 Last 10 Labels</h2>
+
+<div id="container"></div>
+
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+
+<script>
+const socket = io();
+
+const container = document.getElementById("container");
+
+// keep local list (max 10)
+let labels = [];
+
+socket.on("new_label", (label) => {
+    labels.unshift(label);
+    labels = labels.slice(0, 10);
+
+    render();
+
+});
+
+function render() {
+    container.innerHTML = "";
+
+
+
+    labels.forEach((label, index) => {
+        const img = document.createElement("img");
+        img.src = "data:image/png;base64," + label;
+
+        // highlight newest
+        if (index === 0) {
+            img.style.border = "3px solid green";
+
+        }
+        //img.style.transition = "all 0.7s ease";
+        //img.style.transform = index === 0 ? "scale(1.05)" : "scale(1)";
+
+        img.style.opacity = index === 0 ? "0" : "1";
+
+        setTimeout(() => {
+            img.style.opacity = "1";
+            img.style.transform = index === 0 ? "scale(1.05)" : "scale(1)";
+        }, 50);
+
+        container.appendChild(img);
+    });
+
+    // always show newest on top
+    container.scrollTop = 0;
+}
+</script>
+
+</body>
+</html>
